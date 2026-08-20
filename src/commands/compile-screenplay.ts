@@ -1,13 +1,12 @@
 import { App, Notice, TFile } from 'obsidian';
+import { parseFountain } from '../fountain/parser';
 import { parseMasterNote } from '../project/master-note';
 import { resolveScenes } from '../project/scene-resolver';
 
 export async function compileScreenplay(app: App, file: TFile) {
 	try {
-		const source = await app.vault.cachedRead(file);
 		const frontmatter = app.metadataCache.getFileCache(file)?.frontmatter;
 		const result = parseMasterNote(frontmatter);
-
 		if (!result.ok) {
 			new Notice('Final Craft: ' + result.errors.join(' '));
 			return;
@@ -19,25 +18,30 @@ export async function compileScreenplay(app: App, file: TFile) {
 			return;
 		}
 
-		const blockCount = resolution.scenes.reduce(
-			(total, scene) => total + scene.fountainBlocks.length,
-			0,
-		);
+		let blockCount = 0;
+		let elementCount = 0;
+		for (const scene of resolution.scenes) {
+			blockCount += scene.fountainBlocks.length;
+			for (const block of scene.fountainBlocks) {
+				elementCount += parseFountain(block).length;
+			}
+		}
+
 		new Notice(
 			'Final Craft resolved ' +
 				resolution.scenes.length +
-				' scenes and ' +
+				' scenes, ' +
 				blockCount +
-				' Fountain blocks for "' +
+				' Fountain blocks, and ' +
+				elementCount +
+				' semantic elements for "' +
 				result.project.title +
 				'" (' +
 				resolution.warnings.length +
-				' warnings, ' +
-				source.length +
-				' master-note characters).',
+				' warnings).',
 		);
 	} catch (error) {
-		console.error('Final Craft could not read the active note.', error);
-		new Notice('Could not read the active note.');
+		console.error('Final Craft could not compile the active note.', error);
+		new Notice('Could not compile the active note.');
 	}
 }
