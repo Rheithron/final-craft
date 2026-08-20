@@ -1,9 +1,19 @@
 import { ScreenplayElement } from '../fountain/semantic-model';
 import { ResolvedRenderProfile } from './profiles';
 
+export type ScreenplayLineRole =
+	| 'action'
+	| 'scene-heading'
+	| 'shot'
+	| 'transition'
+	| 'character'
+	| 'dialogue'
+	| 'parenthetical';
+
 export interface ReflowedElement {
 	element: ScreenplayElement;
 	lines: string[];
+	roles: ScreenplayLineRole[];
 	lineCount: number;
 }
 
@@ -12,25 +22,32 @@ export function reflowElement(
 	profile: ResolvedRenderProfile,
 ): ReflowedElement {
 	const lines: string[] = [];
+	const roles: ScreenplayLineRole[] = [];
 
 	switch (element.type) {
 		case 'action':
 		case 'scene-heading':
 		case 'shot':
-		case 'transition':
-			lines.push(...wrapText(element.text, profile.actionWidth));
+		case 'transition': {
+			const wrapped = wrapText(element.text, profile.actionWidth);
+			lines.push(...wrapped);
+			roles.push(...wrapped.map(() => element.type));
 			break;
+		}
 		case 'dialogue-block': {
 			const extensions = element.extensions
 				.map((extension) => ' (' + extension + ')')
 				.join('');
 			lines.push(element.character + extensions);
+			roles.push('character');
 			for (const part of element.content) {
 				const width =
 					part.type === 'parenthetical'
 						? profile.parentheticalWidth
 						: profile.dialogueWidth;
-				lines.push(...wrapText(part.text, width));
+				const wrapped = wrapText(part.text, width);
+				lines.push(...wrapped);
+				roles.push(...wrapped.map(() => part.type));
 			}
 			break;
 		}
@@ -38,7 +55,7 @@ export function reflowElement(
 			break;
 	}
 
-	return { element, lines, lineCount: lines.length };
+	return { element, lines, roles, lineCount: lines.length };
 }
 
 export function wrapText(text: string, width: number) {

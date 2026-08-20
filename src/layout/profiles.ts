@@ -25,6 +25,8 @@ export interface ResolvedRenderProfile {
 	density: Density;
 	font: Font;
 	fontSizePoints: 12;
+	pageWidthInches: number;
+	pageHeightInches: number;
 	lineCapacity: number;
 	linePitchPoints: number;
 	actionWidth: 60;
@@ -42,6 +44,8 @@ export function resolveRenderProfile(
 		density,
 		font,
 		fontSizePoints: 12,
+		pageWidthInches: paper === 'letter' ? 8.5 : 8.267717,
+		pageHeightInches: paper === 'letter' ? 11 : 11.692913,
 		lineCapacity: CAPACITIES[paper][density],
 		linePitchPoints: PITCHES[paper][density],
 		actionWidth: 60,

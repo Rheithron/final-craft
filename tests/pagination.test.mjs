@@ -59,3 +59,10 @@ test('honors a forced page break', async () => {
 	assert.equal(pages.length, 2);
 	assert.deepEqual(pages.map((page) => page.usedLines), [10, 10]);
 });
+test('renders exactly 60 characters and wraps character 61', async () => {
+	const pages = await pagesFor('character-width-60');
+	const actionBlocks = pages[0].blocks.filter((block) => block.type === 'action');
+	assert.deepEqual(actionBlocks.map((block) => block.lines.length), [1, 2]);
+	assert.equal(Array.from(actionBlocks[0].lines[0]).length, 60);
+	assert.deepEqual(actionBlocks[1].lines.map((line) => Array.from(line).length), [60, 1]);
+});

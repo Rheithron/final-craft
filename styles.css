@@ -1,0 +1,81 @@
+.final-craft-preview {
+	min-height: 100%;
+	padding: var(--size-4-6);
+	overflow: auto;
+	background: var(--background-secondary);
+}
+
+.final-craft-preview-summary {
+	width: min(100%, var(--final-craft-page-width, 8.5in));
+	margin: 0 auto var(--size-4-6);
+}
+
+.final-craft-preview-summary h2 {
+	margin-block: 0 var(--size-2-2);
+}
+
+.final-craft-preview-empty {
+	padding: var(--size-4-6);
+	color: var(--text-muted);
+}
+
+.final-craft-page {
+	position: relative;
+	box-sizing: border-box;
+	width: var(--final-craft-page-width);
+	height: var(--final-craft-page-height);
+	margin: 0 auto var(--size-4-8);
+	overflow: hidden;
+	color: #000;
+	background: #fff;
+	box-shadow: 0 4px 18px rgb(0 0 0 / 25%);
+	font-family: "Courier Prime", "Courier New", monospace;
+	font-size: 12pt;
+	font-weight: 400;
+}
+
+.final-craft-line {
+	position: absolute;
+	top: calc(1in + var(--final-craft-line-index) * var(--final-craft-line-pitch));
+	box-sizing: border-box;
+	height: var(--final-craft-line-pitch);
+	overflow: hidden;
+	line-height: var(--final-craft-line-pitch);
+	white-space: pre;
+}
+
+.final-craft-action,
+.final-craft-scene-heading,
+.final-craft-shot {
+	left: 1.5in;
+	width: 6in;
+}
+
+.final-craft-character {
+	left: 3.7in;
+	width: 3.8in;
+}
+
+.final-craft-dialogue {
+	left: 2.5in;
+	width: 3.5in;
+}
+
+.final-craft-parenthetical {
+	left: 3.1in;
+	width: 2.5in;
+}
+
+.final-craft-transition {
+	left: 1.5in;
+	width: 6in;
+	text-align: right;
+}
+
+.final-craft-folio {
+	position: absolute;
+	top: 0.5in;
+	right: 1in;
+	height: var(--final-craft-line-pitch);
+	line-height: var(--final-craft-line-pitch);
+}

@@ -4,6 +4,7 @@ import { ScreenplayElement } from '../fountain/semantic-model';
 import { paginate } from '../layout/paginator';
 import { reflowElement } from '../layout/reflow';
 import { resolveRenderProfile } from '../layout/profiles';
+import { openScreenplayPreview } from '../preview/screenplay-view';
 import { parseMasterNote } from '../project/master-note';
 import { resolveScenes } from '../project/scene-resolver';
 
@@ -41,6 +42,11 @@ export async function compileScreenplay(app: App, file: TFile) {
 			0,
 		);
 		const pages = paginate(elements, profile);
+		await openScreenplayPreview(app, {
+			title: result.project.title,
+			pages,
+			profile,
+		});
 
 		new Notice(
 			'Final Craft resolved ' +

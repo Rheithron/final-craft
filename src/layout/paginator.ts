@@ -1,11 +1,16 @@
 import { DialogueBlock, ScreenplayElement } from '../fountain/semantic-model';
-import { ReflowedElement, reflowElement } from './reflow';
+import {
+	ReflowedElement,
+	reflowElement,
+	ScreenplayLineRole,
+} from './reflow';
 import { ResolvedRenderProfile } from './profiles';
 
 export interface PageBlock {
 	type: ScreenplayElement['type'];
 	startLine: number;
 	lines: string[];
+	roles: ScreenplayLineRole[];
 	continued?: boolean;
 }
 
@@ -52,7 +57,13 @@ export function paginate(
 				pages.push(createPage(pages.length + 1));
 				spacing = 0;
 			}
-			addBlock(currentPage(pages), element.type, reflowed.lines, spacing);
+			addBlock(
+				currentPage(pages),
+				element.type,
+				reflowed.lines,
+				reflowed.roles,
+				spacing,
+			);
 		}
 		previousType = element.type;
 	}
@@ -86,7 +97,14 @@ function addSplittableText(
 			take = preferSentenceBoundary(reflowed.lines, offset, take);
 		}
 
-		addBlock(page, reflowed.element.type, reflowed.lines.slice(offset, offset + take), spacing, offset > 0);
+		addBlock(
+			page,
+			reflowed.element.type,
+			reflowed.lines.slice(offset, offset + take),
+			reflowed.roles.slice(offset, offset + take),
+			spacing,
+			offset > 0,
+		);
 		offset += take;
 		spacing = 0;
 		if (offset < reflowed.lines.length) pages.push(createPage(pages.length + 1));
@@ -102,6 +120,7 @@ function addDialogue(
 ) {
 	const sourceCue = reflowed.lines[0] ?? element.character;
 	const content = reflowed.lines.slice(1);
+	const contentRoles = reflowed.roles.slice(1);
 	let offset = 0;
 	let first = true;
 	let spacing = initialSpacing;
@@ -124,7 +143,14 @@ function addDialogue(
 		}
 
 		if (fits) {
-			addBlock(page, element.type, [cue, ...content.slice(offset)], spacing, !first);
+			addBlock(
+				page,
+				element.type,
+				[cue, ...content.slice(offset)],
+				['character', ...contentRoles.slice(offset)],
+				spacing,
+				!first,
+			);
 			break;
 		}
 
@@ -134,6 +160,11 @@ function addDialogue(
 			page,
 			element.type,
 			[cue, ...content.slice(offset, offset + take), '(MORE)'],
+			[
+				'character',
+				...contentRoles.slice(offset, offset + take),
+				'parenthetical',
+			],
 			spacing,
 			!first,
 		);
@@ -148,6 +179,7 @@ function addBlock(
 	page: ScreenplayPage,
 	type: ScreenplayElement['type'],
 	lines: string[],
+	roles: ScreenplayLineRole[],
 	spacing: number,
 	continued = false,
 ) {
@@ -156,6 +188,7 @@ function addBlock(
 		type,
 		startLine: page.usedLines + 1,
 		lines,
+		roles,
 		...(continued ? { continued } : {}),
 	});
 	page.usedLines += lines.length;
