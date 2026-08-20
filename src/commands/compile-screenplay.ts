@@ -1,5 +1,8 @@
 import { App, Notice, TFile } from 'obsidian';
 import { parseFountain } from '../fountain/parser';
+import { ScreenplayElement } from '../fountain/semantic-model';
+import { reflowElement } from '../layout/reflow';
+import { resolveRenderProfile } from '../layout/profiles';
 import { parseMasterNote } from '../project/master-note';
 import { resolveScenes } from '../project/scene-resolver';
 
@@ -18,27 +21,43 @@ export async function compileScreenplay(app: App, file: TFile) {
 			return;
 		}
 
+		const elements: ScreenplayElement[] = [];
 		let blockCount = 0;
-		let elementCount = 0;
 		for (const scene of resolution.scenes) {
 			blockCount += scene.fountainBlocks.length;
 			for (const block of scene.fountainBlocks) {
-				elementCount += parseFountain(block).length;
+				elements.push(...parseFountain(block));
 			}
 		}
+
+		const profile = resolveRenderProfile(
+			result.project.paper,
+			result.project.density,
+			result.project.font,
+		);
+		const reflowedLineCount = elements.reduce(
+			(total, element) => total + reflowElement(element, profile).lineCount,
+			0,
+		);
 
 		new Notice(
 			'Final Craft resolved ' +
 				resolution.scenes.length +
 				' scenes, ' +
 				blockCount +
-				' Fountain blocks, and ' +
-				elementCount +
-				' semantic elements for "' +
+				' Fountain blocks, ' +
+				elements.length +
+				' semantic elements, and ' +
+				reflowedLineCount +
+				' reflowed text lines for "' +
 				result.project.title +
 				'" (' +
-				resolution.warnings.length +
-				' warnings).',
+				profile.paper +
+				', ' +
+				profile.density +
+				', ' +
+				profile.lineCapacity +
+				' lines/page).',
 		);
 	} catch (error) {
 		console.error('Final Craft could not compile the active note.', error);

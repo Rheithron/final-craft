@@ -11,9 +11,9 @@ export const FONT_VALUES = [
 	'courier-new',
 ] as const;
 
-type Paper = (typeof PAPER_VALUES)[number];
-type Density = (typeof DENSITY_VALUES)[number];
-type Font = (typeof FONT_VALUES)[number];
+export type Paper = (typeof PAPER_VALUES)[number];
+export type Density = (typeof DENSITY_VALUES)[number];
+export type Font = (typeof FONT_VALUES)[number];
 
 export interface ActDefinition {
 	start: string;
