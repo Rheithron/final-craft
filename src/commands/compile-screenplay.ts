@@ -1,6 +1,7 @@
 import { App, Notice, TFile } from 'obsidian';
 import { parseFountain } from '../fountain/parser';
 import { ScreenplayElement } from '../fountain/semantic-model';
+import { paginate } from '../layout/paginator';
 import { reflowElement } from '../layout/reflow';
 import { resolveRenderProfile } from '../layout/profiles';
 import { parseMasterNote } from '../project/master-note';
@@ -39,6 +40,7 @@ export async function compileScreenplay(app: App, file: TFile) {
 			(total, element) => total + reflowElement(element, profile).lineCount,
 			0,
 		);
+		const pages = paginate(elements, profile);
 
 		new Notice(
 			'Final Craft resolved ' +
@@ -49,7 +51,9 @@ export async function compileScreenplay(app: App, file: TFile) {
 				elements.length +
 				' semantic elements, and ' +
 				reflowedLineCount +
-				' reflowed text lines for "' +
+				' reflowed text lines across ' +
+				pages.length +
+				' screenplay pages for "' +
 				result.project.title +
 				'" (' +
 				profile.paper +
