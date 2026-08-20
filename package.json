@@ -1,7 +1,7 @@
 {
-	"name": "obsidian-sample-plugin",
+	"name": "final-craft",
 	"version": "1.0.0",
-	"description": "This is a sample plugin for Obsidian (https://obsidian.md)",
+	"description": "Compile screenplays from Markdown notes in Obsidian.",
 	"main": "main.js",
 	"type": "module",
 	"scripts": {
