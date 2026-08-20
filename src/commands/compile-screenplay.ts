@@ -1,5 +1,6 @@
 import { App, Notice, TFile } from 'obsidian';
 import { parseMasterNote } from '../project/master-note';
+import { resolveScenes } from '../project/scene-resolver';
 
 export async function compileScreenplay(app: App, file: TFile) {
 	try {
@@ -8,12 +9,32 @@ export async function compileScreenplay(app: App, file: TFile) {
 		const result = parseMasterNote(frontmatter);
 
 		if (!result.ok) {
-			new Notice(`Final Craft: ${result.errors.join(' ')}`);
+			new Notice('Final Craft: ' + result.errors.join(' '));
 			return;
 		}
 
+		const resolution = await resolveScenes(app, result.project);
+		if (!resolution.ok) {
+			new Notice('Final Craft: ' + resolution.errors.join(' '));
+			return;
+		}
+
+		const blockCount = resolution.scenes.reduce(
+			(total, scene) => total + scene.fountainBlocks.length,
+			0,
+		);
 		new Notice(
-			`Final Craft validated "${result.project.title}" from "${file.basename}" (${source.length} characters).`,
+			'Final Craft resolved ' +
+				resolution.scenes.length +
+				' scenes and ' +
+				blockCount +
+				' Fountain blocks for "' +
+				result.project.title +
+				'" (' +
+				resolution.warnings.length +
+				' warnings, ' +
+				source.length +
+				' master-note characters).',
 		);
 	} catch (error) {
 		console.error('Final Craft could not read the active note.', error);
