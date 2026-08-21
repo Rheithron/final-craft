@@ -45,3 +45,16 @@ test('renders paginated screenplay HTML for Chromium PDF output', async () => {
 	assert.match(html, /\(MORE\)/);
 	assert.match(html, /DOLOMIEU \(CONT&#039;D\)/);
 });
+test('renders calibrated A4 page geometry', () => {
+	const profile = resolveRenderProfile('a4', 'normal', 'courier-new');
+	const pages = paginate(parseFountain('INT. ITHACA - DAY\n\nHome at last.'), profile);
+	const html = renderPrintHtml({
+		title: 'A4 test',
+		titlePage: { title: 'A4 test', authors: [] },
+		metadata: { title: 'A4 test', keywords: [] },
+		pages,
+		profile,
+	});
+	assert.match(html, /@page\{size:8\.267717in 11\.692913in;margin:0\}/);
+	assert.match(html, /font-family:"Courier New", "Courier Prime", monospace/);
+});

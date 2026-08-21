@@ -1,18 +1,20 @@
 import { App, TFile } from 'obsidian';
 import { parseFountain } from '../fountain/parser';
 import { ScreenplayElement } from '../fountain/semantic-model';
+import { isScreenplayFontAvailable, screenplayPrimaryFont } from '../layout/fonts';
 import { paginate } from '../layout/paginator';
 import { resolveRenderProfile } from '../layout/profiles';
 import { ScreenplayPreviewDocument } from '../preview/screenplay-view';
 import { parseMasterNote } from '../project/master-note';
 import { resolveScenes } from '../project/scene-resolver';
+import { fountainWarnings, removeManualActMarkers } from './fountain-diagnostics';
 
 export interface CompiledProject {
 	document: ScreenplayPreviewDocument;
 	sceneCount: number;
 	blockCount: number;
 	elementCount: number;
-	warningCount: number;
+	warnings: string[];
 }
 
 export class FinalCraftCompileError extends Error {}
@@ -33,6 +35,7 @@ export async function compileProject(
 	}
 
 	const elements: ScreenplayElement[] = [];
+	const warnings = [...resolution.warnings];
 	let blockCount = 0;
 	let currentAct: string | undefined;
 	const closedActs = new Set<string>();
@@ -62,7 +65,11 @@ export async function compileProject(
 		}
 		blockCount += scene.fountainBlocks.length;
 		for (const block of scene.fountainBlocks) {
-			elements.push(...parseFountain(block));
+			const parsed = parseFountain(block);
+			warnings.push(...fountainWarnings(scene.path, block, parsed));
+			const cleaned = removeManualActMarkers(scene.path, parsed, master.project.acts);
+			warnings.push(...cleaned.warnings);
+			elements.push(...cleaned.elements);
 		}
 	}
 	if (master.project.acts && currentAct) {
@@ -78,6 +85,11 @@ export async function compileProject(
 		master.project.density,
 		master.project.font,
 	);
+	if (!(await isScreenplayFontAvailable(profile.font))) {
+		warnings.push(
+			`Selected font "${screenplayPrimaryFont(profile.font)}" is unavailable. A fallback font will be used, so line and page breaks may differ.`,
+		);
+	}
 
 	return {
 		document: {
@@ -118,6 +130,6 @@ export async function compileProject(
 		sceneCount: resolution.scenes.length,
 		blockCount,
 		elementCount: elements.length,
-		warningCount: resolution.warnings.length,
+		warnings,
 	};
 }

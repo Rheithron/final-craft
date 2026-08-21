@@ -1,5 +1,6 @@
 import { App, ItemView, WorkspaceLeaf } from 'obsidian';
 import { ScreenplayPage } from '../layout/paginator';
+import { screenplayFontFamily } from '../layout/fonts';
 import { ResolvedRenderProfile } from '../layout/profiles';
 
 export const SCREENPLAY_VIEW_TYPE = 'final-craft-screenplay-preview';
@@ -76,7 +77,8 @@ export class ScreenplayPreviewView extends ItemView {
 		summary.createDiv({
 			text:
 				document.pages.length +
-				(document.pages.length === 1 ? ' screenplay page' : ' screenplay pages'),
+				(document.pages.length === 1 ? ' screenplay page' : ' screenplay pages') +
+				` · ${document.profile.paper.toUpperCase()} · ${document.profile.density} · ${document.profile.font}`,
 		});
 
 		const titlePage = preview.createDiv({
@@ -85,6 +87,7 @@ export class ScreenplayPreviewView extends ItemView {
 		titlePage.setCssProps({
 			'--final-craft-page-width': document.profile.pageWidthInches + 'in',
 			'--final-craft-page-height': document.profile.pageHeightInches + 'in',
+			'--final-craft-font-family': screenplayFontFamily(document.profile.font),
 		});
 		titlePage.setAttribute('aria-label', 'Screenplay title page');
 		const titleBlock = titlePage.createDiv({ cls: 'final-craft-title-block' });
@@ -114,6 +117,7 @@ export class ScreenplayPreviewView extends ItemView {
 				'--final-craft-page-width': document.profile.pageWidthInches + 'in',
 				'--final-craft-page-height': document.profile.pageHeightInches + 'in',
 				'--final-craft-line-pitch': document.profile.linePitchPoints + 'pt',
+				'--final-craft-font-family': screenplayFontFamily(document.profile.font),
 			});
 			pageElement.setAttribute('aria-label', 'Screenplay page ' + page.number);
 

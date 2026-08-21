@@ -1,3 +1,4 @@
+import { screenplayFontFamily } from '../layout/fonts';
 import { ScreenplayPreviewDocument } from '../preview/screenplay-view';
 
 export function renderPrintHtml(document: ScreenplayPreviewDocument) {
@@ -68,7 +69,7 @@ export function renderPrintHtml(document: ScreenplayPreviewDocument) {
 		'in;height:' +
 		profile.pageHeightInches +
 		'in;overflow:hidden;break-after:page;page-break-after:always;color:#000;background:#fff;font-family:' +
-		fontFamily(profile.font) +
+		screenplayFontFamily(profile.font) +
 		';font-size:12pt;font-weight:400}' +
 		'.page:last-child{break-after:auto;page-break-after:auto}' +
 		'.title-block{position:absolute;top:3.33in;left:1in;right:1in;text-align:center;line-height:26pt}' +
@@ -95,17 +96,6 @@ export function renderPrintHtml(document: ScreenplayPreviewDocument) {
 		titlePage + pages.join('') +
 		'</body></html>'
 	);
-}
-
-function fontFamily(font: ScreenplayPreviewDocument['profile']['font']) {
-	switch (font) {
-		case 'courier-final-draft':
-			return '"Courier Final Draft","Courier Prime","Courier New",monospace';
-		case 'courier-new':
-			return '"Courier New","Courier Prime",monospace';
-		case 'courier-prime':
-			return '"Courier Prime","Courier New",monospace';
-	}
 }
 
 function escapeHtml(value: string) {

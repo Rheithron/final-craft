@@ -4,3 +4,4 @@ export { resolveRenderProfile } from '../../src/layout/profiles';
 export { renderPrintHtml } from '../../src/pdf/print-html';
 export { parseMasterNote } from '../../src/project/master-note';
 export { addPdfMetadata } from '../../src/pdf/metadata';
+export { fountainWarnings, removeManualActMarkers } from '../../src/compiler/fountain-diagnostics';
