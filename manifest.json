@@ -1,8 +1,8 @@
 {
   "id": "final-craft",
   "name": "Final Craft",
-  "version": "0.1.0-alpha.1",
-  "minAppVersion": "1.7.2",
+  "version": "0.1.0",
+  "minAppVersion": "1.13.7",
   "description": "Compile screenplays from Markdown notes.",
   "author": "rheithron-dp",
   "isDesktopOnly": false

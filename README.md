@@ -2,7 +2,7 @@
 
 Final Craft compiles screenplay projects from Markdown notes inside Obsidian. Keep each scene in its own note, arrange the project from one YAML master note, preview deterministic screenplay pages, and export a metadata-rich PDF without sending your writing anywhere.
 
-> **Alpha software:** use copies of important projects and review exported PDFs before distribution.
+> **Early release:** review exported PDFs before production or distribution.
 
 ## What works
 
@@ -42,9 +42,13 @@ For a complete, ready-to-copy project, see [The Odyssey example](examples/Final%
 - [Master note reference](docs/master-note.md)
 - [Scene notes and ordering](docs/scene-notes.md)
 - [Fountain support and limitations](docs/fountain-support.md)
-- [Alpha installation and test checklist](docs/alpha-testing.md)
+- [Release testing checklist](docs/alpha-testing.md)
 
-## Install the alpha manually
+## Install
+
+After Community Directory publication, install Final Craft from **Settings → Community plugins → Browse**.
+
+For manual installation:
 
 1. Run `npm install` and `npm run build`.
 2. Create `<vault>/.obsidian/plugins/final-craft/`.
@@ -62,4 +66,4 @@ npm test
 npm run lint
 ```
 
-Final Craft is private-alpha software at present. PDF export uses Obsidian's desktop runtime; compilation and preview avoid desktop-only APIs.
+Final Craft is under active development. PDF export uses Obsidian's desktop runtime; compilation and preview avoid desktop-only APIs.

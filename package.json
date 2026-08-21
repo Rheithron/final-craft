@@ -1,6 +1,6 @@
 {
   "name": "final-craft",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0",
   "description": "Compile screenplays from Markdown notes in Obsidian.",
   "main": "main.js",
   "type": "module",

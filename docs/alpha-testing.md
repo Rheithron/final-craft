@@ -1,5 +1,10 @@
 # Alpha installation and test checklist
 
+## Validated environments
+
+- Desktop: Obsidian 1.13.7 on Windows, Letter and A4 preview/PDF export.
+- Mobile: Obsidian 1.13.8 (367) on Samsung Galaxy S23, Android 16 / One UI 8.5. Compile, preview, context menu, rotation, restart, font warning, and desktop-only export gating passed.
+
 ## Clean-vault installation
 
 Copy only `main.js`, `manifest.json`, and `styles.css` to `.obsidian/plugins/final-craft/`, reload Obsidian, and enable Final Craft.
