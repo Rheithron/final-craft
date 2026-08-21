@@ -37,21 +37,46 @@ export function paginate(
 			continue;
 		}
 
+		if (
+			element.type === 'act' &&
+			element.boundary === 'start' &&
+			currentPage(pages).usedLines > 0
+		) {
+			pages.push(createPage(pages.length + 1));
+			previousType = undefined;
+		}
+
 		const reflowed = reflowElement(element, profile);
+		const reserveAfter = reserveForFollowingActEnd(elements[index + 1]);
 		if (element.type === 'action') {
-			addSplittableText(pages, reflowed, profile, spacingBefore(element.type, previousType));
+			addSplittableText(
+				pages,
+				reflowed,
+				profile,
+				spacingBefore(element.type, previousType),
+				reserveAfter,
+			);
 		} else if (element.type === 'dialogue-block') {
-			addDialogue(pages, element, reflowed, profile, spacingBefore(element.type, previousType));
+			addDialogue(
+				pages,
+				element,
+				reflowed,
+				profile,
+				spacingBefore(element.type, previousType),
+				reserveAfter,
+			);
 		} else {
 			let spacing = spacingBefore(element.type, previousType);
 			const page = currentPage(pages);
 			const keepLines =
-				element.type === 'scene-heading' || element.type === 'shot'
-					? followingKeepLines(elements[index + 1], profile)
-					: 0;
+				element.type === 'act' && element.boundary === 'start'
+					? followingActStartKeepLines(elements, index, profile)
+					: element.type === 'scene-heading' || element.type === 'shot'
+						? followingKeepLines(elements[index + 1], profile)
+						: 0;
 			if (
 				page.usedLines > 0 &&
-				spacing + reflowed.lineCount + keepLines >
+				spacing + reflowed.lineCount + keepLines + reserveAfter >
 					profile.lineCapacity - page.usedLines
 			) {
 				pages.push(createPage(pages.length + 1));
@@ -76,6 +101,7 @@ function addSplittableText(
 	reflowed: ReflowedElement,
 	profile: ResolvedRenderProfile,
 	initialSpacing: number,
+	reserveAfter: number,
 ) {
 	let offset = 0;
 	let spacing = initialSpacing;
@@ -91,6 +117,17 @@ function addSplittableText(
 		}
 
 		const remaining = reflowed.lines.length - offset;
+		if (
+			reserveAfter > 0 &&
+			remaining <= available &&
+			remaining + reserveAfter > available &&
+			page.usedLines > 0
+		) {
+			pages.push(createPage(pages.length + 1));
+			spacing = 0;
+			continue;
+		}
+		if (remaining + reserveAfter <= available) available -= reserveAfter;
 		let take = Math.min(available, remaining);
 		if (remaining > take && remaining - take < 2) take = Math.max(2, take - 1);
 		if (remaining > take) {
@@ -117,6 +154,7 @@ function addDialogue(
 	reflowed: ReflowedElement,
 	profile: ResolvedRenderProfile,
 	initialSpacing: number,
+	reserveAfter: number,
 ) {
 	const sourceCue = reflowed.lines[0] ?? element.character;
 	const content = reflowed.lines.slice(1);
@@ -133,7 +171,17 @@ function addDialogue(
 		const remaining = content.length - offset;
 		const minimumContent =
 			first && element.content[0]?.type === 'parenthetical' ? 2 : 1;
-		const fits = 1 + remaining <= available;
+		if (
+			reserveAfter > 0 &&
+			1 + remaining <= available &&
+			1 + remaining + reserveAfter > available &&
+			page.usedLines > 0
+		) {
+			pages.push(createPage(pages.length + 1));
+			spacing = 0;
+			continue;
+		}
+		const fits = 1 + remaining + reserveAfter <= available;
 
 		if (!fits && available < 2 + minimumContent && page.usedLines > 0) {
 			pages.push(createPage(pages.length + 1));
@@ -194,6 +242,10 @@ function addBlock(
 	page.usedLines += lines.length;
 }
 
+function reserveForFollowingActEnd(element: ScreenplayElement | undefined) {
+	return element?.type === 'act' && element.boundary === 'end' ? 2 : 0;
+}
+
 function followingKeepLines(
 	element: ScreenplayElement | undefined,
 	profile: ResolvedRenderProfile,
@@ -202,12 +254,29 @@ function followingKeepLines(
 	return Math.min(2, reflowElement(element, profile).lineCount);
 }
 
+function followingActStartKeepLines(
+	elements: ScreenplayElement[],
+	index: number,
+	profile: ResolvedRenderProfile,
+) {
+	const heading = elements[index + 1];
+	const following = elements[index + 2];
+	if (!heading || heading.type !== 'scene-heading') return 0;
+	return (
+		1 +
+		reflowElement(heading, profile).lineCount +
+		followingKeepLines(following, profile)
+	);
+}
+
 function spacingBefore(
 	type: ScreenplayElement['type'],
 	previousType: ScreenplayElement['type'] | undefined,
 ) {
 	if (!previousType) return 0;
-	if (type === 'scene-heading' || type === 'shot') return 2;
+	if (type === 'scene-heading' || type === 'shot') {
+		return previousType === 'act' ? 1 : 2;
+	}
 	if (previousType === 'scene-heading' || previousType === 'shot') return 1;
 	return 1;
 }

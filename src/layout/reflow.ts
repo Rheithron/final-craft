@@ -5,6 +5,8 @@ export type ScreenplayLineRole =
 	| 'action'
 	| 'scene-heading'
 	| 'shot'
+	| 'act-start'
+	| 'act-end'
 	| 'transition'
 	| 'character'
 	| 'dialogue'
@@ -32,6 +34,12 @@ export function reflowElement(
 			const wrapped = wrapText(element.text, profile.actionWidth);
 			lines.push(...wrapped);
 			roles.push(...wrapped.map(() => element.type));
+			break;
+		}
+		case 'act': {
+			const wrapped = wrapText(element.text, profile.actionWidth);
+			lines.push(...wrapped);
+			roles.push(...wrapped.map(() => `act-${element.boundary}` as const));
 			break;
 		}
 		case 'dialogue-block': {

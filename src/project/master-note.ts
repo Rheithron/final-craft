@@ -20,13 +20,23 @@ export interface ActDefinition {
 	end: string;
 }
 
+export interface ContactDetails {
+	name?: string;
+	email?: string;
+}
+
 export interface MasterProject {
 	title: string;
 	subtitle?: string;
 	episodeTitle?: string;
 	writingCredit?: string;
 	authors: string[];
-	sourceFolder: string;
+	contact?: ContactDetails;
+	pdfTitle?: string;
+	subject?: string;
+	keywords: string[];
+	creator?: string;
+	language?: string;	sourceFolder: string;
 	paper: Paper;
 	density: Density;
 	font: Font;
@@ -54,6 +64,8 @@ export function parseMasterNote(value: unknown): MasterNoteResult {
 	const density = readChoice(value, 'density', DENSITY_VALUES, errors);
 	const font = readChoice(value, 'font', FONT_VALUES, errors);
 	const authors = readAuthors(value.authors, errors);
+	const contact = readContact(value.contact, errors);
+	const keywords = readStringList(value.keywords, 'keywords', errors);
 	const acts = readActs(value.acts, errors);
 
 	if (errors.length > 0 || !title || !sourceFolder || !paper || !density || !font) {
@@ -68,6 +80,20 @@ export function parseMasterNote(value: unknown): MasterNoteResult {
 			episodeTitle: readOptionalString(value.episode_title),
 			writingCredit: readOptionalString(value.writing_credit),
 			authors,
+			...(contact ? { contact } : {}),
+			...(readOptionalString(value.pdf_title)
+				? { pdfTitle: readOptionalString(value.pdf_title) }
+				: {}),
+			...(readOptionalString(value.subject)
+				? { subject: readOptionalString(value.subject) }
+				: {}),
+			keywords,
+			...(readOptionalString(value.creator)
+				? { creator: readOptionalString(value.creator) }
+				: {}),
+			...(readOptionalString(value.language)
+				? { language: readOptionalString(value.language) }
+				: {}),
 			sourceFolder,
 			paper,
 			density,
@@ -75,6 +101,36 @@ export function parseMasterNote(value: unknown): MasterNoteResult {
 			...(acts ? { acts } : {}),
 		},
 	};
+}
+
+function readStringList(value: unknown, key: string, errors: string[]) {
+	if (value === undefined) return [];
+	if (
+		!isUnknownArray(value) ||
+		value.some((item) => typeof item !== 'string' || !item.trim())
+	) {
+		errors.push(`Property ${key} must be a list of non-empty strings.`);
+		return [];
+	}
+	return value.map((item) => (item as string).trim());
+}
+
+function readContact(value: unknown, errors: string[]) {
+	if (value === undefined) {
+		return undefined;
+	}
+	if (!isRecord(value)) {
+		errors.push('Property contact must be a mapping with name and/or email.');
+		return undefined;
+	}
+
+	const name = readOptionalString(value.name);
+	const email = readOptionalString(value.email);
+	if (!name && !email) {
+		errors.push('Property contact must define a non-empty name and/or email.');
+		return undefined;
+	}
+	return { ...(name ? { name } : {}), ...(email ? { email } : {}) };
 }
 
 function readRequiredString(

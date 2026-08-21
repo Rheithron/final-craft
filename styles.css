@@ -51,6 +51,18 @@
 	width: 6in;
 }
 
+.final-craft-act-start,
+.final-craft-act-end {
+	left: 1.5in;
+	width: 6in;
+	text-align: center;
+}
+
+.final-craft-act-start {
+	text-decoration: underline;
+	text-underline-offset: 1pt;
+}
+
 .final-craft-character {
 	left: 3.7in;
 	width: 3.8in;
@@ -78,4 +90,42 @@
 	right: 1in;
 	height: var(--final-craft-line-pitch);
 	line-height: var(--final-craft-line-pitch);
+}
+.final-craft-title-block {
+	position: absolute;
+	top: 3.33in;
+	left: 1in;
+	right: 1in;
+	text-align: center;
+	line-height: 26pt;
+}
+
+.final-craft-cover-title {
+	font-weight: 400;
+}
+
+.final-craft-cover-contact {
+	position: absolute;
+	left: 1in;
+	bottom: 1.15in;
+	line-height: 15pt;
+}
+.final-craft-pdf-webview {
+	position: fixed;
+	left: -10000px;
+	top: 0;
+	width: 8.5in;
+	height: 11in;
+	visibility: hidden;
+}
+.final-craft-error-details {
+	width: 100%;
+	min-height: 12rem;
+	margin-bottom: var(--size-4-4);
+	resize: vertical;
+	font-family: var(--font-monospace);
+}
+
+.final-craft-error-description {
+	color: var(--text-muted);
 }

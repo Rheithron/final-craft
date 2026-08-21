@@ -66,3 +66,26 @@ test('renders exactly 60 characters and wraps character 61', async () => {
 	assert.equal(Array.from(actionBlocks[0].lines[0]).length, 60);
 	assert.deepEqual(actionBlocks[1].lines.map((line) => Array.from(line).length), [60, 1]);
 });
+test('starts every later act on a new page and marks opener roles', () => {
+	const profile = resolveRenderProfile('letter', 'normal', 'courier-prime');
+	const pages = paginate([
+		{ type: 'act', text: 'TEASER', boundary: 'start' },
+		{ type: 'scene-heading', text: 'EXT. DESERT - DAY', forced: false },
+		{ type: 'action', text: 'The horizon refuses to move.', forced: false },
+		{ type: 'act', text: 'END OF TEASER', boundary: 'end' },
+		{ type: 'act', text: 'ACT ONE', boundary: 'start' },
+		{ type: 'scene-heading', text: 'INT. TENT - NIGHT', forced: false },
+		{ type: 'action', text: 'A lantern gutters.', forced: false },
+		{ type: 'act', text: 'END OF ACT ONE', boundary: 'end' },
+	], profile);
+	assert.equal(pages.length, 2);
+	assert.deepEqual(pages[0].blocks.map((block) => block.type), [
+		'act', 'scene-heading', 'action', 'act',
+	]);
+	assert.equal(pages[0].blocks[0].startLine, 1);
+	assert.equal(pages[0].blocks[1].startLine, 3);
+	assert.deepEqual(pages[0].blocks[0].roles, ['act-start']);
+	assert.deepEqual(pages[0].blocks[3].roles, ['act-end']);
+	assert.deepEqual(pages[1].blocks[0].lines, ['ACT ONE']);
+	assert.equal(pages[1].blocks[0].startLine, 1);
+});

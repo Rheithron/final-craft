@@ -2,6 +2,7 @@ export type ScreenplayElement =
 	| { type: 'scene-heading'; text: string; forced: boolean }
 	| { type: 'action'; text: string; forced: boolean }
 	| { type: 'shot'; text: string }
+	| { type: 'act'; text: string; boundary: 'start' | 'end' }
 	| DialogueBlock
 	| { type: 'transition'; text: string; forced: boolean }
 	| { type: 'page-break' };

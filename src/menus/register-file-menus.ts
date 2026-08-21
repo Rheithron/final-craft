@@ -1,7 +1,9 @@
-import { Plugin, TFile } from 'obsidian';
+import { Platform, Plugin, TFile } from 'obsidian';
 import { compileScreenplay } from '../commands/compile-screenplay';
+import { exportScreenplayToPdf } from '../commands/export-screenplay-pdf';
 
-const MENU_TITLE = 'Final Craft: Compile screenplay';
+const COMPILE_MENU_TITLE = 'Final Craft: Compile screenplay';
+const EXPORT_MENU_TITLE = 'Final Craft: Export screenplay PDF';
 
 export function registerFileMenus(plugin: Plugin) {
 	plugin.registerEvent(
@@ -12,10 +14,19 @@ export function registerFileMenus(plugin: Plugin) {
 
 			menu.addItem((item) =>
 				item
-					.setTitle(MENU_TITLE)
+					.setTitle(COMPILE_MENU_TITLE)
 					.setIcon('clapperboard')
 					.onClick(() => compileScreenplay(plugin.app, file)),
 			);
+
+			if (Platform.isDesktopApp) {
+				menu.addItem((item) =>
+					item
+						.setTitle(EXPORT_MENU_TITLE)
+						.setIcon('file-down')
+						.onClick(() => exportScreenplayToPdf(plugin.app, file)),
+				);
+			}
 		}),
 	);
 }

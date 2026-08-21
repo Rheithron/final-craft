@@ -6,8 +6,30 @@ export const SCREENPLAY_VIEW_TYPE = 'final-craft-screenplay-preview';
 
 export interface ScreenplayPreviewDocument {
 	title: string;
+	metadata: ScreenplayPdfMetadata;
+	titlePage: ScreenplayTitlePage;
 	pages: ScreenplayPage[];
 	profile: ResolvedRenderProfile;
+}
+
+export interface ScreenplayPdfMetadata {
+	title: string;
+	author?: string;
+	subject?: string;
+	keywords: string[];
+	creator?: string;
+	language?: string;
+	contactEmail?: string;
+}
+
+export interface ScreenplayTitlePage {
+	title: string;
+	subtitle?: string;
+	episodeTitle?: string;
+	writingCredit?: string;
+	authors: string[];
+	contactName?: string;
+	contactEmail?: string;
 }
 
 export class ScreenplayPreviewView extends ItemView {
@@ -56,6 +78,35 @@ export class ScreenplayPreviewView extends ItemView {
 				document.pages.length +
 				(document.pages.length === 1 ? ' screenplay page' : ' screenplay pages'),
 		});
+
+		const titlePage = preview.createDiv({
+			cls: ['final-craft-page', 'final-craft-title-page'],
+		});
+		titlePage.setCssProps({
+			'--final-craft-page-width': document.profile.pageWidthInches + 'in',
+			'--final-craft-page-height': document.profile.pageHeightInches + 'in',
+		});
+		titlePage.setAttribute('aria-label', 'Screenplay title page');
+		const titleBlock = titlePage.createDiv({ cls: 'final-craft-title-block' });
+		titleBlock.createDiv({
+			cls: 'final-craft-cover-title',
+			text: document.titlePage.title.toUpperCase(),
+		});
+		for (const value of [
+			document.titlePage.subtitle,
+			document.titlePage.episodeTitle,
+			document.titlePage.writingCredit,
+			...document.titlePage.authors,
+		]) {
+			if (value) titleBlock.createDiv({ text: value });
+		}
+		const contact = titlePage.createDiv({ cls: 'final-craft-cover-contact' });
+		if (document.titlePage.contactName) {
+			contact.createDiv({ text: document.titlePage.contactName });
+		}
+		if (document.titlePage.contactEmail) {
+			contact.createDiv({ text: document.titlePage.contactEmail });
+		}
 
 		for (const page of document.pages) {
 			const pageElement = preview.createDiv({ cls: 'final-craft-page' });
