@@ -298,7 +298,7 @@ function createPage(number: number): ScreenplayPage {
 }
 
 function currentPage(pages: ScreenplayPage[]) {
-	const page = pages.at(-1);
+	const page = pages[pages.length - 1];
 	if (!page) throw new Error('Paginator has no current page.');
 	return page;
 }
